@@ -1,0 +1,7 @@
+# deploy
+
+1. yum install suricata
+2. cp etc/sysconfig/suricata /etc/sysconfig/suricata
+
+# start
+1. systemctl restart suricata
