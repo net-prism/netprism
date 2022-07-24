@@ -1,0 +1,28 @@
+[Unit]
+Description=Quickwit
+Documentation=https://github.com/quickwit-oss/quickwit/blob/main/docs/guides/aws-setup.md
+Wants=network-online.target
+After=network-online.target
+AssertFileIsExecutable=/usr/local/bin/quickwit
+
+[Service]
+WorkingDirectory=/usr/local
+
+EnvironmentFile=-/etc/default/quickwit
+ExecStartPre=/bin/bash -c "if [ -z \"${QW_CONFIG}\" ]; then echo \"Variable QW_CONFIG not set in /etc/default/quickwit\"; exit 1; fi"
+ExecStart=/usr/local/bin/quickwit run --config $QW_CONFIG
+
+# Let systemd restart this service always
+Restart=always
+
+# Specifies the maximum number of threads this process can create
+TasksMax=infinity
+
+# Disable timeout logic and wait until process is stopped
+TimeoutStopSec=infinity
+SendSIGKILL=no
+
+[Install]
+WantedBy=multi-user.target
+
+# Built for ${project.name}-${project.version} (${project.name})

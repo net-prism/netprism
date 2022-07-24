@@ -1,0 +1,26 @@
+# deploy
+1. tar -xzvf quickwit*.tar.gz
+2. cp quickwit-v*/quickwit /usr/local/bin/quickwit
+3. yum install libpq
+4. mkdir -p /etc/quickwit
+5. mkdir -p /data/quickwit
+6. cp etc/default/quickwit /etc/default/quickwit 
+7. cp etc/quickwit/quickwit.yaml /etc/quickwit/quickwit.yaml
+8. cp etc/quickwit/index-flow.yaml /etc/quickwit/index-flow.yaml
+9. cp service/quickwit.service /etc/systemd/system/quickwit.service
+10. systemctl daemon-reload
+11. systemctl stop firewalld
+
+# configure
+## set environment
+export AWS_REGION="ap-east-1"
+export AWS_ACCESS_KEY_ID="minioadmin"
+export AWS_SECRET_ACCESS_KEY="minioadmin"
+export QW_CONFIG="/etc/quickwit/quickwit.yaml"
+export QW_S3_ENDPOINT="http://192.168.0.117:9000"
+
+## create index for evelogs flow
+quickwit index create --index-config /etc/quickwit/index-flow.yaml
+
+# start
+systemctl restart quickwit

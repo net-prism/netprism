@@ -1,0 +1,5 @@
+AWS_REGION="ap-east-1"
+AWS_ACCESS_KEY_ID="minioadmin"
+AWS_SECRET_ACCESS_KEY="minioadmin"
+QW_CONFIG="/etc/quickwit/quickwit.yaml"
+QW_S3_ENDPOINT="http://192.168.0.117:9000"
