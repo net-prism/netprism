@@ -1,0 +1,119 @@
+#
+# Index config file for receiving logs in OpenTelemetry format.
+# Link: https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/logs/data-model.md
+#
+
+version: 0
+
+index_id: evelogs-flow
+
+doc_mapping:
+  mode: dynamic
+  dynamic_mapping:
+    indexed: true
+    stored: true
+    tokenizer: raw
+    record: basic
+  field_mappings:
+    - name: timestamp
+      type: i64
+      fast: true
+    - name: flow_id
+      type: u64
+      fast: true
+    - name: in_face
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: event_type
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: src_ip
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: src_port
+      type: u64
+      fast: true
+    - name: dest_ip
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: dest_port
+      type: u64
+      fast: true
+    - name: proto
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: app_proto
+      type: text
+      tokenizer: raw
+      fast: true
+    - name: flow
+      type: object
+      field_mappings:
+        - name: pkts_toserver
+          type: u64
+        - name: pkts_toclient
+          type: u64
+        - name: bytes_toserver
+          type: u64
+        - name: bytes_toclient
+          type: u64
+        - name: bypassed
+          type: object
+          field_mappings:
+            - name: pkts_toserver
+              type: u64
+            - name: pkts_toclient
+              type: u64
+            - name: bytes_toserver
+              type: u64
+            - name: bytes_toclient
+              type: u64
+        - name: start
+          type: text
+          tokenizer: raw
+        - name: end
+          type: text
+          tokenizer: raw
+        - name: age
+          type: u64
+        - name: bypass
+          type: text
+          tokenizer: raw
+        - name: state
+          type: text
+          tokenizer: raw
+        - name: reason
+          type: text
+          tokenizer: raw
+        - name: alerted
+          type: text
+          tokenizer: raw
+    - name: tcp
+      type: object
+      field_mappings:
+        - name: tcp_flags
+          type: text
+          tokenizer: raw
+        - name: tcp_flags_ts
+          type: text
+          tokenizer: raw
+        - name: tcp_flags_tc
+          type: text
+          tokenizer: raw
+        - name: state
+          type: text
+          tokenizer: raw
+
+
+indexing_settings:
+  timestamp_field: timestamp
+  sort_field: timestamp
+  sort_order: desc
+
+search_settings:
+  default_search_fields: [proto, app_proto]
