@@ -1,0 +1,10 @@
+# deploy
+
+1. yum install ./vector*.rpm
+2. cp etc/vector/vector.toml /etc/vector/vector.toml
+3. cp service/vector.service  /usr/lib/systemd/system/vector.service 
+4. mkdir -p /data/vector
+5. systemctl daemon-reload
+
+# start
+1. systemctl restart vector

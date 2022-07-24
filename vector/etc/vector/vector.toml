@@ -1,0 +1,89 @@
+#                                    __   __  __
+#                                    \ \ / / / /
+#                                     \ V / / /
+#                                      \_/  \/
+#
+#                                    V E C T O R
+#                                   Configuration
+#
+# ------------------------------------------------------------------------------
+# Website: https://vector.dev
+# Docs: https://vector.dev/docs
+# Chat: https://chat.vector.dev
+# ------------------------------------------------------------------------------
+
+# Change this to use a non-default directory for Vector data storage:
+data_dir = "/data/vector"
+
+# Suricata evelogs
+[sources.evelogs]
+type = "file"
+include = ["/var/log/suricata/eve.json"]
+read_from = "beginning"
+
+# Parse Evelogs
+# See the Vector Remap Language reference for more info: https://vrl.dev
+[transforms.parse_evelogs]
+type = "remap"
+inputs = ["evelogs"]
+source = '''
+. = parse_json!(.message)
+.timestamp = to_unix_timestamp(parse_timestamp!(.timestamp, format: "%Y-%m-%dT%H:%M:%S%.6f%z"),  unit: "milliseconds")
+if is_boolean(.flow.alerted) {
+  .flow.alerted = to_string!(.flow.alerted)
+}
+'''
+
+# Route evelogs by event_type
+[transforms.parse_evelogs_route]
+type = "route"
+inputs = [ "parse_evelogs" ]
+route.flow = '.event_type == "flow"'
+route.http = '.event_type == "http"'
+route.dns = '.event_type == "dns"'
+route.dnc = '.event_type == "alert"'
+route.stats = '.event_type == "stats"'
+
+# Sample evelogs flow
+[transforms.flow_sample]
+type = "sample"
+inputs = [ "parse_evelogs_route.flow" ]
+rate = 100
+
+# Print evelogs flow to stdout
+[sinks.print]
+type = "console"
+inputs = ["flow_sample"]
+encoding.codec = "json"
+
+# Send structured data to S3
+[sinks.s3]
+type = "aws_s3"
+inputs = [ "parse_evelogs" ]
+endpoint = "http://192.168.0.117:9000"
+bucket = "evelogs"
+key_prefix = "{{event_type}}/%F/%H/%M/"
+compression = "gzip"
+region = "ap-east-1"
+auth.access_key_id = "minioadmin"
+auth.secret_access_key = "minioadmin"
+encoding.codec = "json"
+batch.max_events = 1000
+batch.timeout_secs = 60
+buffer.type = "memory"
+buffer.max_events = 1000
+
+# Send structured data to quickwit
+[sinks.quickwit_index_flow]
+type = "http"
+inputs = ["parse_evelogs_route.flow"]
+encoding.codec = "ndjson"
+uri = "http://192.168.0.117:7280/api/v1/evelogs-flow/ingest"
+
+
+# Vector's GraphQL API (disabled by default)
+# Uncomment to try it out with the `vector top` command or
+# in your browser at http://localhost:8686
+[api]
+enabled = true
+address = "0.0.0.0:8686"
