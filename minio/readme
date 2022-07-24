@@ -1,0 +1,18 @@
+# deploy
+1. yum install ./minio*.rpm
+2. cp etc/default/minio /etc/default/minio
+3. cp service/minio.service /etc/systemd/system/minio.service
+4. mkdir /data/minio
+5. systemctl daemon-reload
+6. systemctl stop firewalld
+
+# configure
+UI: http://localhost:9000
+User: minioadmin
+Pass: minioadmin
+
+1. create buckets evelogs
+2. create buckets quickwit
+
+# start
+1. systemctl restart minio
